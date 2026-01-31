@@ -9,7 +9,8 @@
         input { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; }
         button { padding: 10px 15px; background-color: #26c84c; color: white; border: none; cursor: pointer; border-radius: 4px; }
         button:hover { background-color: #165423; }
-        .controls { margin-top: 20px; line-height: 2; }
+        .Aiden { margin-top: 20px; line-height: 2; position: absolute; right: 20px; }
+        .Ethan { margin-top: 20px; line-height: 2; position: absolute; left: 20px; }
     </style>
 </head>
 <body>
@@ -19,21 +20,33 @@
     <input type ="password" id="password" placeholder="Admin">
     <button onclick="checkAdmin()">Enter Admin Page</button>
 
-    <div class="controls">
-        <input type="checkbox" id="Flute" disabled onclick="handleToggle(this, 10)">Flute (10)</input><br>
-        <input type="checkbox" id="Aplus" disabled onclick="handleToggle(this, 15)">A+ (15)</input><br>
-        <input type="checkbox" id="BYSO" disabled onclick="handleToggle(this, 10)">BYSO (10)</input><br>
-        <input type="checkbox" id="Chinese" disabled onclick="handleToggle(this, 5)">Chinese (5)</input><br>
-        <input type="checkbox" id="Boba" disabled onclick="handleToggle(this, -20)">Boba Day (-20)</input><br>
-        <input type="checkbox" id="Coding" disabled onclick="handleToggle(this, 10)">Coding Class (10)</input><br>
-        <input type="checkbox" id="Movie" disabled onclick="handleToggle(this, -40)">Movie Day (-40)</input><br>
-        <input type="checkbox" id="Points25" disabled onclick="handleToggle(this, 25)">25 Points</input>
-    </div>
+        <div class = "Aiden">
+            <label><input type="checkbox" id="Flute" disabled onclick="handleToggle(this, 10)">Flute (10)</label><br>
+            <label><input type="checkbox" id="Aplus" disabled onclick="handleToggle(this, 15)">A+ (15)</label><br>
+            <label><input type="checkbox" id="BYSO" disabled onclick="handleToggle(this, 10)">BYSO (13)</label><br>
+            <label><input type="checkbox" id="Chinese" disabled onclick="handleToggle(this, 5)">Chinese (5)</label><br>
+            <label><input type="checkbox" id="Boba" disabled onclick="handleToggle(this, -20)">Boba Day (-6)</label><br>
+            <label><input type="checkbox" id="Coding" disabled onclick="handleToggle(this, 10)">Coding Class (10)</label><br>
+            <label><input type="checkbox" id="Movie" disabled onclick="handleToggle(this, -40)">Movie Day (-180)</label><br>
+            <label><input type="checkbox" id="Points25" disabled onclick="handleToggle(this, 25)">25 Points</label>
+        </div>
+        <div class = "Ethan">
+        <!--same tasks as above---->
+            <label><input type="checkbox" id="Piano" disabled onclick="handleToggle(this, 10)">Piano (10)</label><br>
+            <label><input type="checkbox" id="AplusE" disabled onclick="handleToggle(this, 15)">A+ (15)</label><br>
+            <label><input type="checkbox" id="Spanish" disabled onclick="handleToggle(this, 5)">Chinese (5)</label><br>
+            <label><input type="checkbox" id="IceCream" disabled onclick="handleToggle(this, -20)">Boba (-20)</label><br>
+            <label><input type="checkbox" id="MathClub" disabled onclick="handleToggle(this, 10)">Swimming class (10)</label><br>
+            <label><input type="checkbox" id="GameDay" disabled onclick="handleToggle(this, -40)">Movie Day (-180)</label><br>
+            <label><input type="checkbox" id="Points25E" disabled onclick="handleToggle(this, 25)">25 Points</label>
+        </div>
 
     <hr>
     <h3>Custom Actions</h3>
-    <input type ="number" id="custompoints" placeholder="Custom Points">
-    <button onclick="updatePoints(document.getElementById('custompoints').value, 'custom')">Give/Take Custom</button>
+    <input type ="number" id="custompoints" placeholder="Custom Points for Aiden">
+    <input type ="number" id="custompointsE" placeholder="Custom Points for Ethan">
+    <button onclick="updatePoints(document.getElementById('custompoints').value, 'custom')">Give/Take Custom for Aiden</button>
+    <button onclick="updatePointsE(document.getElementById('custompointsE').value, 'customE')">Give/Take Custom for Ethan</button>
     <button onclick="resetPoints()" style="background:red">Manual Monday Reset</button>
 
     <script>
@@ -84,7 +97,17 @@
             const res = await fetch('/give-points', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ points: howmany, taskId: 'custom-' + Date.now() })
+                body: JSON.stringify({ points: parseInt(howmany) || 0, taskId: 'custom-' + Date.now() })
+            });
+            const data = await res.json();
+            document.getElementById('display-points').innerText = data.points;
+        }
+
+        async function updatePointsE(howmany, type) {
+            const res = await fetch('/give-points', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ points: parseInt(howmany) || 0, taskId: 'customE-' + Date.now() })
             });
             const data = await res.json();
             document.getElementById('display-points').innerText = data.points;

@@ -18,8 +18,9 @@ mongoose.connect(process.env.MONGO_URI)
     });
 
 const User = mongoose.model('User', new mongoose.Schema({
-    points: { type: Number, default: 0 },
-    completedTasks: { type: [String], default: [] } 
+    Apoints: { type: Number, default: 0 },
+    Epoints: { type: Number, default: 0 },
+    completedTasks: { type: [String], default: []} 
 }));
 
 // Uses ADMINKEY to match your .env
@@ -32,27 +33,29 @@ app.post('/check-admin', (req, res) => {
 });
 
 app.post('/give-points', async (req, res) => {
-    const { points, taskId } = req.body;
+    const { points, taskId, pointType } = req.body;
+    const fieldName = pointType === 'E' ? 'Epoints' : 'Apoints';
     const user = await User.findOneAndUpdate(
         {}, 
-        { $inc: { points: parseInt(points) || 0 }, $addToSet: { completedTasks: taskId } }, 
+        { $inc: { [fieldName]: parseInt(points) || 0 }, $addToSet: { completedTasks: taskId } }, 
         { upsert: true, new: true }
     );
     res.json(user);
 });
 
 app.post('/remove-points', async (req, res) => {
-    const { points, taskId } = req.body;
+    const { points, taskId, pointType } = req.body;
+    const fieldName = pointType === 'E' ? 'Epoints' : 'Apoints';
     const user = await User.findOneAndUpdate(
         {}, 
-        { $inc: { points: -(parseInt(points) || 0) }, $pull: { completedTasks: taskId } }, 
+        { $inc: { [fieldName]: -(parseInt(points) || 0) }, $pull: { completedTasks: taskId } }, 
         { new: true }
     );
     res.json(user);
 });
 
 app.get('/get-points', async (req, res) => {
-    const user = await User.findOne() || await User.create({ points: 0, completedTasks: [] });
+    const user = await User.findOne() || await User.create({ Apoints: 0, Epoints: 0, completedTasks: [] });
     res.json(user);
 });
 
