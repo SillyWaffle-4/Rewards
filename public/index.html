@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Awards Home</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
+        .score-box { font-size: 2.5em; color: #26c84c; font-weight: bold; margin-bottom: 20px; }
+        input { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 15px; background-color: #26c84c; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        button:hover { background-color: #165423; }
+        .controls { margin-top: 20px; line-height: 2; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Awards Page</h1>
+    
+    <div class="score-box">Total Points: <span id="display-points">0</span></div>
+
+    <input type ="password" id="password" placeholder="Admin">
+    <button onclick="checkAdmin()">Enter Admin Page</button>
+
+    <div class="controls">
+        <input type="checkbox" id="Flute" disabled onclick="givepoints(10)">Flute (10)</input><br>
+        <input type="checkbox" id="A+" disabled onclick="givepoints(15)">A+ (15)</input><br>
+        <input type="checkbox" id="BYSO" disabled onclick="givepoints(10)">BYSO (10)</input><br>
+        <input type="checkbox" id="Chinese" disabled onclick="givepoints(5)">Chinese (5)</input><br>
+        <input type="checkbox" id="Boba Day" disabled onclick="removepoints(6)">Boba Day (-6)</input><br>
+        <input type="checkbox" id="Coding Class" disabled onclick="givepoints(10)">Coding Class (10)</input><br>
+        <input type="checkbox" id="Movie Day" disabled onclick="removepoints(40)">Movie Day (-40)</input><br>
+        <input type="checkbox" id="25 points" disabled onclick="givepoints(25)">25 Points</input><br>
+        <input type="checkbox" id="25 points2" disabled onclick="givepoints(25)">25 Points 2</input>
+    </div>
+
+    <hr>
+    <h3>Custom Actions</h3>
+    <input type ="number" id="custompoints" placeholder="Custom Points">
+    <button onclick="givepoints(document.getElementById('custompoints').value)">Give Custom Points</button>
+    <button onclick="removepoints(document.getElementById('custompoints').value)">Remove Custom Points</button>
+    <button onclick="resetPoints()" style="background:red">Manual Monday Reset</button>
+
+    <script>
+        let admin = false;
+
+        // Load points from MongoDB when the page opens
+        window.onload = async () => {
+            const res = await fetch('/get-points');
+            const data = await res.json();
+            document.getElementById('display-points').innerText = data.points;
+        };
+
+        async function checkAdmin() {
+            const response = await fetch('/check-admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: document.getElementById('password').value })
+            });
+            const result = await response.json();
+            if (result.success) {
+                admin = true;
+                toggleCheckboxes();
+                alert('Admin Access Granted!');
+            } else {
+                alert('Incorrect password! NEXT TIME GET IT RIGHT!!!');
+            }
+        }
+
+        function toggleCheckboxes() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.disabled = !admin);
+        }
+
+        async function givepoints(howmany) {
+            const res = await fetch('/give-points', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ points: howmany })
+            });
+            const data = await res.json();
+            document.getElementById('display-points').innerText = data.points;
+        }
+
+        async function removepoints(howmany) {
+            const res = await fetch('/remove-points', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ points: howmany })
+            });
+            const data = await res.json();
+            document.getElementById('display-points').innerText = data.points;
+        }
+
+        async function resetPoints() {
+            if (!admin) return alert('Admin only!');
+            const res = await fetch('/reset-points', { method: 'POST' });
+            const data = await res.json();
+            document.getElementById('display-points').innerText = data.points;
+            alert('Points have been reset for all users.');
+        }
+    </script>
+</body>
+</html>
